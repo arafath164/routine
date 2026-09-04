@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Naan's Daily Flow 🌸</title>
+  
+  <meta name="description" content="A gentle, bite-sized, ADHD-friendly daily flow tracker with warm voice cheer.">
+  <meta name="theme-color" content="#FFF7ED">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
+
+  <!-- Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-yellow"></div>
+  <div class="ambient-glow glow-coral"></div>
+  <div class="ambient-glow glow-sage"></div>
+
+  <!-- Animated Audio Visualizer & Visual Cues Overlay -->
+  <div class="audio-visualizer-overlay" id="audioVisualizerOverlay">
+    <div class="visualizer-content" id="visualizerContent">
+      <div class="visualizer-waves">
+        <span class="wave-bar"></span>
+        <span class="wave-bar"></span>
+        <span class="wave-bar"></span>
+        <span class="wave-bar"></span>
+      </div>
+      <div class="visualizer-emoji-burst" id="visualizerEmojiBurst"></div>
+      <span class="visualizer-persona-tag" id="visualizerPersonaTag">Speaking...</span>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       WELCOME SPLASH SCREEN
+       ============================================================ -->
+  <div id="welcomeSplash" class="welcome-splash">
+    <div class="splash-content">
+      <div class="splash-sun">☀️</div>
+      <h1 class="splash-greeting">Shubodayam Nana 🌸</h1>
+      <p class="splash-question">Simply showing up for yourself today is already a beautiful victory ✨</p>
+      <div class="splash-audio-hint" id="splashAudioHint">🔊 Tap anywhere to play morning audio greeting</div>
+
+      <div class="splash-choices">
+        <button class="splash-btn splash-btn-energized" id="splashBtnYes">
+          <span class="splash-btn-emoji">🌻</span>
+          <span class="splash-btn-text">Yes! Let's bloom today!</span>
+          <span class="splash-btn-sub">Every sunrise is a fresh canvas</span>
+        </button>
+        <button class="splash-btn splash-btn-gentle" id="splashBtnSlow">
+          <span class="splash-btn-emoji">🌙</span>
+          <span class="splash-btn-text">Easing in slowly...</span>
+          <span class="splash-btn-sub">Showing up is already a win</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Transition cheer after choosing -->
+    <div class="splash-cheer" id="splashCheer">
+      <div class="splash-cheer-emoji">💛</div>
+      <p class="splash-cheer-text" id="splashCheerText"></p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MAIN APP (hidden until splash is dismissed)
+       ============================================================ -->
+  <div class="app-container" id="appContainer" style="display: none;">
+    <!-- Header Area -->
+    <header class="flow-header">
+      <div class="header-top">
+        <div class="live-pill" id="syncStatusPill">
+          <span class="live-indicator"></span>
+          <span id="syncStatusText">Saved live</span>
+        </div>
+        <div class="header-actions">
+          <button id="soundToggleBtn" class="icon-btn" title="Toggle sound & voice" aria-label="Toggle sound">
+            <i data-lucide="volume-2"></i>
+          </button>
+          <button id="shareFlowBtn" class="btn-secondary share-btn" title="Share live link">
+            <i data-lucide="share-2"></i>
+            <span>Share</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="title-row">
+        <h1 class="flow-title">Naan's Daily Flow 🌸</h1>
+      </div>
+
+      <!-- Voice Persona Tone Picker Row -->
+      <div class="voice-picker-row persona-row">
+        <span class="voice-picker-label">Tone:</span>
+        <button id="personaLovingBtn" class="voice-pick-btn" data-persona="loving">
+          <span>🥰</span> Loving
+        </button>
+        <button id="personaMotivationalBtn" class="voice-pick-btn" data-persona="motivational">
+          <span>💪</span> Motivational
+        </button>
+        <button id="personaInspiringBtn" class="voice-pick-btn" data-persona="inspiring">
+          <span>✨</span> Inspiring
+        </button>
+        <button id="personaAppreciatingBtn" class="voice-pick-btn" data-persona="appreciating">
+          <span>💖</span> Appreciating
+        </button>
+        <button id="personaStrictBtn" class="voice-pick-btn" data-persona="strict">
+          <span>🎯</span> Strict Coach
+        </button>
+        <button id="personaCheesyBtn" class="voice-pick-btn" data-persona="cheesy">
+          <span>🧀</span> Cheesy Cute
+        </button>
+        <button id="personaRomanticBtn" class="voice-pick-btn active" data-persona="romantic">
+          <span>💋</span> Romantic
+        </button>
+      </div>
+
+      <!-- Full Gentle Reminder Banner -->
+      <div class="gentle-banner">
+        <div class="banner-icon">🌻</div>
+        <p class="banner-text">
+          <strong>Gentle Reminder:</strong> This is just a menu for the day, not a strict test. I can move at my own pace, skip around if I feel like it, and take as many breaks as my brain and body need. <em>Everything I get done today is a win!</em> 💛
+        </p>
+      </div>
+
+      <!-- Live Cheering Announcement Banner -->
+      <div class="cheer-live-banner" id="cheerLiveBanner">
+        <span class="cheer-live-icon" id="cheerLiveIcon">✨</span>
+        <span class="cheer-live-text" id="cheerLiveText">Ready for a gentle, pressure-free day! Let's go 🚀</span>
+      </div>
+
+      <!-- Progress Momentum Tracker -->
+      <div class="progress-bar-card">
+        <div class="progress-header">
+          <span class="progress-title">Your Gentle Momentum</span>
+          <span class="progress-counter" id="progressCounter">0/14 done</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- View Switcher Tabs -->
+      <div class="view-switcher">
+        <button id="focusViewBtn" class="tab-btn active">
+          <i data-lucide="sparkles"></i>
+          <span>Focus Mode</span>
+        </button>
+        <button id="randomMotivationBtn" class="btn-spark-motivation" title="Get instant inspiration based on active tone">
+          <i data-lucide="sparkles"></i>
+          <span>Instant inspiration ✨</span>
+        </button>
+        <button id="menuViewBtn" class="tab-btn">
+          <i data-lucide="layout-list"></i>
+          <span>Full Menu</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Background Magic Mini-Bar -->
+    <div class="bg-magic-mini-bar" id="bgMagicTray" style="display: none;">
+      <div class="bg-magic-mini-title">
+        <span>✨ Background magic running for you:</span>
+      </div>
+      <div class="bg-magic-tags" id="bgMagicList"></div>
+    </div>
+
+    <!-- MAIN VIEW 1: Focus Mode -->
+    <main id="focusViewSection" class="view-section active">
+      <div class="focus-card-wrapper" id="focusCardWrapper"></div>
+    </main>
+
+    <!-- MAIN VIEW 2: Full Menu View -->
+    <main id="menuViewSection" class="view-section">
+      <div class="flow-pills-row" id="flowPillsRow"></div>
+      <div class="tasks-menu-list" id="tasksMenuList"></div>
+    </main>
+
+
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card">
+        <button id="closeShareModalBtn" class="modal-close-btn">&times;</button>
+        <div class="modal-badge">🔗 Live Link Ready</div>
+        <h3 class="modal-title">Share Naan's Flow</h3>
+        <p class="modal-desc">
+          Open this link on your phone to update tasks anytime without losing progress.
+        </p>
+        <div class="share-url-box">
+          <input type="text" id="shareUrlInput" readonly>
+          <button id="copyShareUrlBtn" class="btn-primary copy-btn">
+            <i data-lucide="copy"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+        <div class="modal-buttons">
+          <button id="whatsappShareBtn" class="btn-whatsapp">
+            <i data-lucide="send"></i>
+            <span>Send to WhatsApp</span>
+          </button>
+          <button id="resetFlowBtn" class="btn-ghost text-danger">
+            <i data-lucide="rotate-ccw"></i>
+            <span>Reset for Today</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="flow-footer">
+      <div class="footer-quote" id="footerQuoteText" title="Click to refresh warm caption ✨">
+        Crafted with love, light & space 💖✨
+      </div>
+      <div class="footer-meta">
+        <button id="clearDataBtn" class="link-btn">Reset flow</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
