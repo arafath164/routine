@@ -2021,7 +2021,14 @@
       }
     }
 
-    function startFlowSession() {
+    let flowStarted = false;
+    function startFlowSession(e) {
+      if (e) {
+        try { e.stopPropagation(); } catch (err) {}
+      }
+      if (flowStarted) return;
+      flowStarted = true;
+
       unlockAudioHardware();
 
       // Transition from Step 1 (Entry Splash) to Step 2 (Morning Welcome Screen)
@@ -2032,28 +2039,28 @@
         }, 500);
       }
 
-      welcomeSplash.style.display = 'flex';
-      welcomeSplash.style.opacity = '1';
-      welcomeSplash.classList.remove('fade-out');
+      if (welcomeSplash) {
+        welcomeSplash.style.display = 'flex';
+        welcomeSplash.style.opacity = '1';
+        welcomeSplash.classList.remove('fade-out');
+      }
 
       // Play morning welcome greeting audio instantly in Male Telugu Mohan voice!
       setTimeout(playMorningWelcomeAudio, 150);
     }
 
     if (btnStartFlow) {
-      btnStartFlow.addEventListener('click', (e) => {
-        e.stopPropagation();
-        startFlowSession();
-      });
+      btnStartFlow.addEventListener('click', startFlowSession);
+      btnStartFlow.addEventListener('touchstart', startFlowSession, { passive: true });
     }
 
     if (entrySplash) {
       entrySplash.addEventListener('click', startFlowSession);
-      entrySplash.addEventListener('touchstart', startFlowSession, { passive: true });
     }
 
     function dismissSplash(type) {
       unlockAudioHardware();
+      const splashKey = 'naan_splash_done_' + new Date().toDateString();
       const cheers = type === 'yes' ? SPLASH_CHEERS.yes : SPLASH_CHEERS.slow;
       const idx = Math.floor(Math.random() * cheers.length);
       const msg = cheers[idx];
@@ -2069,11 +2076,11 @@
 
       // After cheer, transition to main app
       setTimeout(() => {
-        splash.classList.add('fade-out');
+        if (welcomeSplash) welcomeSplash.classList.add('fade-out');
         if (cheer) cheer.style.opacity = '0';
         setTimeout(() => {
-          splash.style.display = 'none';
-          appContainer.style.display = '';
+          if (welcomeSplash) welcomeSplash.style.display = 'none';
+          if (appContainer) appContainer.style.display = '';
           sessionStorage.setItem(splashKey, '1');
           renderApp();
           if (typeof confetti === 'function') {
