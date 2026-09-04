@@ -2020,11 +2020,10 @@
       const playPromise = activeAudioObj.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          // Playing successfully!
+          // HTML5 Audio playing successfully!
         }).catch((err) => {
-          console.warn("Splash autoplay waiting for user tap:", err);
-          splashAudioStarted = false;
-          hideAudioVisualizer();
+          console.warn("HTML5 autoplay blocked by browser policy, using Male TTS fallback for instant audio on open:", err);
+          speakCheerTTS(splashGreeting, revealSplashChoices);
         });
       }
 
