@@ -886,7 +886,7 @@
 
     // On github.io hosts, serve audio directly from jsDelivr CDN for instant 200 OK audio streaming without Content-Disposition attachment block
     if (window.location.hostname.endsWith('github.io')) {
-      return `https://cdn.jsdelivr.net/gh/arafath164/Day@main/${cleanPath}`;
+      return `https://cdn.jsdelivr.net/gh/arafath164/routine@main/${cleanPath}`;
     }
 
     let base = window.location.pathname;
