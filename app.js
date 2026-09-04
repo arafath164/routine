@@ -2055,14 +2055,17 @@
     }
 
     let flowStarted = false;
+    let step2ReadyTime = 0;
+
     function startFlowSession(e) {
       if (e) {
-        try { e.stopPropagation(); } catch (err) {}
+        try { e.preventDefault(); e.stopPropagation(); } catch (err) {}
       }
       if (flowStarted) return;
       flowStarted = true;
 
       unlockAudioHardware();
+      step2ReadyTime = Date.now() + 600; // 600ms cooldown to prevent touch-through to Step 2 buttons
 
       // Transition from Step 1 (Entry Splash) to Step 2 (Morning Welcome Screen)
       if (entrySplash) {
@@ -2084,14 +2087,17 @@
 
     if (btnStartFlow) {
       btnStartFlow.addEventListener('click', startFlowSession);
-      btnStartFlow.addEventListener('touchstart', startFlowSession, { passive: true });
     }
 
-    if (entrySplash) {
-      entrySplash.addEventListener('click', startFlowSession);
-    }
+    function dismissSplash(type, e) {
+      if (e) {
+        try { e.preventDefault(); e.stopPropagation(); } catch (err) {}
+      }
+      if (Date.now() < step2ReadyTime) {
+        console.log("Ignoring touch-through click on step 2 option during splash transition");
+        return;
+      }
 
-    function dismissSplash(type) {
       unlockAudioHardware();
       const cheers = type === 'yes' ? SPLASH_CHEERS.yes : SPLASH_CHEERS.slow;
       const idx = Math.floor(Math.random() * cheers.length);
@@ -2122,8 +2128,8 @@
       }, 2200);
     }
 
-    if (btnYes) btnYes.addEventListener('click', (e) => { e.stopPropagation(); dismissSplash('yes'); });
-    if (btnSlow) btnSlow.addEventListener('click', (e) => { e.stopPropagation(); dismissSplash('slow'); });
+    if (btnYes) btnYes.addEventListener('click', (e) => dismissSplash('yes', e));
+    if (btnSlow) btnSlow.addEventListener('click', (e) => dismissSplash('slow', e));
   }
 
   // --- Dynamic Rotating Footer Captions (Crafted with Love & Space) ---
