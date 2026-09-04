@@ -883,6 +883,12 @@
       return filePath;
     }
     let cleanPath = filePath.replace(/^\/+/, '');
+
+    // On github.io hosts, serve audio directly from raw.githubusercontent.com for guaranteed 200 OK
+    if (window.location.hostname.endsWith('github.io')) {
+      return `https://raw.githubusercontent.com/arafath164/Day/main/${cleanPath}`;
+    }
+
     let base = window.location.pathname;
     if (base.substring(base.lastIndexOf('/')).includes('.')) {
       base = base.substring(0, base.lastIndexOf('/') + 1);
