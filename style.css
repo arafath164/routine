@@ -201,6 +201,20 @@ body {
   overflow-y: auto;
 }
 
+.welcome-splash.entry-splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 20px max(32px, env(safe-area-inset-bottom, 32px));
+}
+
+.entry-splash .entry-content {
+  margin: auto 0;
+  max-width: 440px;
+  width: 100%;
+}
+
 .welcome-splash.fade-out {
   opacity: 0;
   pointer-events: none;
@@ -259,27 +273,29 @@ body {
   margin-bottom: 4px;
 }
 
-/* Step 1: Tap to Begin Button */
+/* Step 1: Tap to Begin Button (Positioned at Bottom of Screen) */
 .btn-start-flow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 16px 32px;
-  font-size: 1.15rem;
+  gap: 12px;
+  padding: 18px 36px;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #FFFFFF;
   background: linear-gradient(135deg, #F43F5E, #E11D48);
   border: none;
   border-radius: var(--radius-full);
-  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.35);
+  box-shadow: 0 10px 28px rgba(244, 63, 94, 0.38);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   width: 100%;
-  max-width: 320px;
+  max-width: 340px;
   font-family: var(--font-sans);
   letter-spacing: -0.01em;
-  margin-top: 8px;
+  margin-top: auto;
+  margin-bottom: 12px;
+  z-index: 10;
 }
 
 .btn-start-flow:hover {
