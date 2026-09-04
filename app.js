@@ -899,6 +899,15 @@
     return window.location.origin + base + cleanPath;
   }
 
+  function createAudioPlayer(url) {
+    const audio = new Audio();
+    audio.crossOrigin = "anonymous";
+    audio.src = url;
+    audio.volume = 1.0;
+    audio.preload = "auto";
+    return audio;
+  }
+
   function unlockAudioHardware() {
     if (audioHardwareUnlocked) return;
     initAudio();
@@ -954,8 +963,7 @@
     if (audioFile) {
       try {
         const fullUrl = getAudioUrl(audioFile);
-        activeAudioObj = new Audio(fullUrl);
-        activeAudioObj.volume = 1.0;
+        activeAudioObj = createAudioPlayer(fullUrl);
         let triggered = false;
 
         const doneHandler = () => {
@@ -970,8 +978,7 @@
 
         activeAudioObj.onerror = () => {
           console.warn("Primary audio URL error, trying relative fallback:", fullUrl);
-          const fallbackObj = new Audio(audioFile);
-          fallbackObj.volume = 1.0;
+          const fallbackObj = createAudioPlayer(audioFile);
           fallbackObj.onended = doneHandler;
           fallbackObj.onerror = () => speakCheerTTS(cleaned, onEndCb);
           fallbackObj.play().catch(() => speakCheerTTS(cleaned, onEndCb));
@@ -1976,14 +1983,6 @@
 
     if (!splash || !appContainer) return;
 
-    // Check if splash was already dismissed this session
-    const splashKey = 'naan_splash_done_' + new Date().toDateString();
-    if (sessionStorage.getItem(splashKey)) {
-      splash.style.display = 'none';
-      appContainer.style.display = '';
-      return;
-    }
-
     let splashAudioStarted = false;
 
     function revealSplashChoices() {
@@ -2005,7 +2004,7 @@
         try { activeAudioObj.pause(); } catch (e) {}
       }
 
-      activeAudioObj = new Audio(fullUrl);
+      activeAudioObj = createAudioPlayer(fullUrl);
       activeAudioObj.volume = 1.0;
       showAudioVisualizer('romantic', splashGreeting);
 
