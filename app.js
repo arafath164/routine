@@ -1966,7 +1966,12 @@
     ]
   };
 
+  let flowStarted = false;
+  let welcomeAudioStarted = false;
+
   function showWelcomeSplash() {
+    flowStarted = false;
+    welcomeAudioStarted = false;
     const entrySplash = document.getElementById('entrySplash');
     const welcomeSplash = document.getElementById('welcomeSplash');
     const appContainer = document.getElementById('appContainer');
@@ -2018,8 +2023,6 @@
       if (appContainer) appContainer.style.display = 'none';
     }
 
-    let welcomeAudioStarted = false;
-
     function playMorningWelcomeAudio() {
       if (welcomeAudioStarted) return;
       unlockAudioHardware();
@@ -2054,7 +2057,6 @@
       }
     }
 
-    let flowStarted = false;
     let step2ReadyTime = 0;
 
     function startFlowSession(e) {
