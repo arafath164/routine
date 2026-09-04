@@ -877,6 +877,15 @@
   let activeAudioObj = null;
   let audioHardwareUnlocked = false;
 
+  function unlockAudioHardware() {
+    if (audioHardwareUnlocked) return;
+    audioHardwareUnlocked = true;
+    try {
+      const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+      silentAudio.play().catch(() => {});
+    } catch (e) {}
+  }
+
   function getAudioUrl(filePath) {
     if (!filePath) return '';
     if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
@@ -1958,17 +1967,25 @@
   };
 
   function showWelcomeSplash() {
-    const splash = document.getElementById('welcomeSplash');
+    const entrySplash = document.getElementById('entrySplash');
+    const welcomeSplash = document.getElementById('welcomeSplash');
     const appContainer = document.getElementById('appContainer');
     const cheer = document.getElementById('splashCheer');
-    if (splash && appContainer) {
-      splash.classList.remove('fade-out');
-      splash.style.display = 'flex';
-      splash.style.opacity = '1';
-      if (cheer) {
-        cheer.classList.remove('show');
-        cheer.style.opacity = '';
-      }
+
+    if (entrySplash) {
+      entrySplash.classList.remove('fade-out');
+      entrySplash.style.display = 'flex';
+      entrySplash.style.opacity = '1';
+    }
+    if (welcomeSplash) {
+      welcomeSplash.classList.remove('fade-out');
+      welcomeSplash.style.display = 'none';
+    }
+    if (cheer) {
+      cheer.classList.remove('show');
+      cheer.style.opacity = '';
+    }
+    if (appContainer) {
       appContainer.style.display = 'none';
     }
   }
@@ -1984,6 +2001,22 @@
     const btnSlow = document.getElementById('splashBtnSlow');
 
     if (!welcomeSplash || !appContainer) return;
+
+    const splashKey = 'naan_splash_done_' + new Date().toDateString();
+    if (sessionStorage.getItem(splashKey)) {
+      if (entrySplash) entrySplash.style.display = 'none';
+      if (welcomeSplash) welcomeSplash.style.display = 'none';
+      if (appContainer) appContainer.style.display = '';
+      renderApp();
+    } else {
+      if (entrySplash) {
+        entrySplash.style.display = 'flex';
+        entrySplash.style.opacity = '1';
+        entrySplash.classList.remove('fade-out');
+      }
+      if (welcomeSplash) welcomeSplash.style.display = 'none';
+      if (appContainer) appContainer.style.display = 'none';
+    }
 
     let welcomeAudioStarted = false;
 
@@ -2036,7 +2069,7 @@
         entrySplash.classList.add('fade-out');
         setTimeout(() => {
           entrySplash.style.display = 'none';
-        }, 500);
+        }, 400);
       }
 
       if (welcomeSplash) {
@@ -2046,7 +2079,7 @@
       }
 
       // Play morning welcome greeting audio instantly in Male Telugu Mohan voice!
-      setTimeout(playMorningWelcomeAudio, 150);
+      setTimeout(playMorningWelcomeAudio, 100);
     }
 
     if (btnStartFlow) {
@@ -2060,7 +2093,6 @@
 
     function dismissSplash(type) {
       unlockAudioHardware();
-      const splashKey = 'naan_splash_done_' + new Date().toDateString();
       const cheers = type === 'yes' ? SPLASH_CHEERS.yes : SPLASH_CHEERS.slow;
       const idx = Math.floor(Math.random() * cheers.length);
       const msg = cheers[idx];
@@ -2147,11 +2179,6 @@
     initSplash();
     initFooterRotation();
     if (window.lucide) window.lucide.createIcons();
-    // Render app only if splash is already dismissed (otherwise initSplash handles it)
-    const splashKey = 'naan_splash_done_' + new Date().toDateString();
-    if (sessionStorage.getItem(splashKey)) {
-      renderApp();
-    }
   });
 
 })();
