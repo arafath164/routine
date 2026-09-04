@@ -181,6 +181,257 @@ body {
   margin-right: 2px;
   min-width: 42px;
 }
+
+/* ==========================================================================
+   2-STEP SPLASH SCREENS (Step 1 Entry & Step 2 Morning Welcome)
+   ========================================================================== */
+.welcome-splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(circle at top right, #FFF7ED, #FAF7F2, #FEF3C7);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  overflow-y: auto;
+}
+
+.welcome-splash.fade-out {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+}
+
+.splash-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 28px;
+  padding: 36px 28px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  border: 1.5px solid var(--border-subtle);
+  box-shadow: 0 20px 50px rgba(60, 40, 20, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: splashPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes splashPop {
+  0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.splash-sun {
+  font-size: 3.5rem;
+  line-height: 1;
+  animation: pulseSun 3s ease-in-out infinite;
+  margin-bottom: 4px;
+}
+
+@keyframes pulseSun {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(6deg); }
+}
+
+.splash-greeting {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.splash-question {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+/* Step 1: Tap to Begin Button */
+.btn-start-flow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 32px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #F43F5E, #E11D48);
+  border: none;
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.35);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: 100%;
+  max-width: 320px;
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  margin-top: 8px;
+}
+
+.btn-start-flow:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(244, 63, 94, 0.45);
+  background: linear-gradient(135deg, #FB7185, #F43F5E);
+}
+
+.btn-start-flow:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
+}
+
+.btn-spark-icon {
+  font-size: 1.2rem;
+}
+
+.btn-arrow {
+  font-size: 1.2rem;
+  transition: transform 0.25s ease;
+}
+
+.btn-start-flow:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.entry-audio-tag {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  background: rgba(254, 243, 199, 0.65);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* Step 2: Choice Options */
+.splash-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.splash-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 16px 20px;
+  border-radius: 18px;
+  border: 1.5px solid var(--border-subtle);
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.splash-btn:hover {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: var(--shadow-md);
+}
+
+.splash-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.splash-btn-emoji {
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.splash-btn-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.splash-btn-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.splash-btn-energized {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: linear-gradient(135deg, #FFFDF5, #FEF3C7);
+}
+
+.splash-btn-energized:hover {
+  border-color: #F59E0B;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.22);
+}
+
+.splash-btn-gentle {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, #FAF5FF, #F3E8FF);
+}
+
+.splash-btn-gentle:hover {
+  border-color: #8B5CF6;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+}
+
+/* Cheer Transition Overlay */
+.splash-cheer {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.splash-cheer.show {
+  display: flex;
+  animation: cheerFade 0.4s ease forwards;
+}
+
+@keyframes cheerFade {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.splash-cheer-emoji {
+  font-size: 3rem;
+  animation: bounceEmoji 0.8s ease infinite alternate;
+}
+
+@keyframes bounceEmoji {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+.splash-cheer-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  max-width: 320px;
+  line-height: 1.4;
+}
+
 .voice-pick-btn {
   display: inline-flex;
   align-items: center;

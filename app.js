@@ -2139,6 +2139,7 @@
     setupEvents();
     initSplash();
     initFooterRotation();
+    if (window.lucide) window.lucide.createIcons();
     // Render app only if splash is already dismissed (otherwise initSplash handles it)
     const splashKey = 'naan_splash_done_' + new Date().toDateString();
     if (sessionStorage.getItem(splashKey)) {
