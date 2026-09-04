@@ -1932,8 +1932,7 @@
       return;
     }
 
-    // --- Start Audio Automatically from Splash Screen by Default ---
-    let splashAudioPlayed = false;
+    let splashAudioStarted = false;
 
     function revealSplashChoices() {
       const choices = document.querySelector('.splash-choices');
@@ -1943,8 +1942,10 @@
     }
 
     function playSplashDefaultAudio() {
-      if (splashAudioPlayed) return;
+      if (splashAudioStarted) return;
       initAudio();
+      splashAudioStarted = true;
+
       const splashGreeting = "Shubodayam Nana! Simply showing up for yourself today is already a beautiful victory.";
 
       if (activeAudioObj) {
@@ -1955,50 +1956,49 @@
       showAudioVisualizer('romantic', splashGreeting);
 
       activeAudioObj.onended = () => {
-        splashAudioPlayed = true;
         hideAudioVisualizer();
         revealSplashChoices();
       };
       activeAudioObj.onerror = () => {
+        hideAudioVisualizer();
         revealSplashChoices();
       };
 
-      activeAudioObj.play().then(() => {
-        splashAudioPlayed = true;
-      }).catch((err) => {
-        console.warn("Splash autoplay deferred until user gesture:", err);
-        hideAudioVisualizer();
-      });
+      const playPromise = activeAudioObj.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          // Playing successfully! Choices reveal when audio ends.
+        }).catch((err) => {
+          console.warn("Splash autoplay waiting for user interaction:", err);
+          splashAudioStarted = false;
+          hideAudioVisualizer();
+        });
+      }
 
-      setTimeout(revealSplashChoices, 3500);
+      // Safety fallback: reveal choices after 6 seconds if audio is delayed
+      setTimeout(revealSplashChoices, 6000);
     }
 
-    // Trigger immediate audio attempt on splash screen load
-    setTimeout(() => {
-      playSplashDefaultAudio();
-    }, 200);
+    // Try immediate playback
+    setTimeout(playSplashDefaultAudio, 100);
+
+    // Primary User Tap Listener — triggers audio instantly on user gesture
+    const triggerSplashAudioOnUserGesture = () => {
+      if (!splashAudioStarted) {
+        playSplashDefaultAudio();
+      }
+    };
 
     const splashHint = document.getElementById('splashAudioHint');
     if (splashHint) {
       splashHint.addEventListener('click', (e) => {
         e.stopPropagation();
-        playSplashDefaultAudio();
+        triggerSplashAudioOnUserGesture();
       });
     }
 
-    // Unblock browser autoplay on first user touch/click/key if deferred by browser policy
-    const unblockAutoplay = () => {
-      playSplashDefaultAudio();
-      window.removeEventListener('pointerdown', unblockAutoplay);
-      window.removeEventListener('click', unblockAutoplay);
-      window.removeEventListener('keydown', unblockAutoplay);
-      window.removeEventListener('touchstart', unblockAutoplay);
-    };
-
-    window.addEventListener('pointerdown', unblockAutoplay);
-    window.addEventListener('touchstart', unblockAutoplay);
-    window.addEventListener('click', unblockAutoplay);
-    window.addEventListener('keydown', unblockAutoplay);
+    splash.addEventListener('click', triggerSplashAudioOnUserGesture);
+    splash.addEventListener('touchstart', triggerSplashAudioOnUserGesture, { passive: true });
 
     function dismissSplash(type) {
       initAudio();
@@ -2031,8 +2031,8 @@
       }, 2200);
     }
 
-    if (btnYes) btnYes.addEventListener('click', () => dismissSplash('yes'));
-    if (btnSlow) btnSlow.addEventListener('click', () => dismissSplash('slow'));
+    if (btnYes) btnYes.addEventListener('click', (e) => { e.stopPropagation(); dismissSplash('yes'); });
+    if (btnSlow) btnSlow.addEventListener('click', (e) => { e.stopPropagation(); dismissSplash('slow'); });
   }
 
   // --- Dynamic Rotating Footer Captions (Crafted with Love & Space) ---
