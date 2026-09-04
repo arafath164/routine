@@ -1924,7 +1924,7 @@
 
     const whatsappShareBtn = document.getElementById('whatsappShareBtn');
     if (whatsappShareBtn) {
-      whatsappShareBtn.addEventListener('click', () => {
+        whatsappShareBtn.addEventListener('click', () => {
         const input = document.getElementById('shareUrlInput');
         const urlToShare = input ? input.value : window.location.href;
         const msg = encodeURIComponent(`Here is Naan's daily flow for today! 🌸\n\nTrack along here:\n${urlToShare}`);
@@ -1974,28 +1974,23 @@
   }
 
   function initSplash() {
-    const splash = document.getElementById('welcomeSplash');
+    const entrySplash = document.getElementById('entrySplash');
+    const welcomeSplash = document.getElementById('welcomeSplash');
     const appContainer = document.getElementById('appContainer');
+    const btnStartFlow = document.getElementById('btnStartFlow');
     const cheer = document.getElementById('splashCheer');
     const cheerText = document.getElementById('splashCheerText');
     const btnYes = document.getElementById('splashBtnYes');
     const btnSlow = document.getElementById('splashBtnSlow');
 
-    if (!splash || !appContainer) return;
+    if (!welcomeSplash || !appContainer) return;
 
-    let splashAudioStarted = false;
+    let welcomeAudioStarted = false;
 
-    function revealSplashChoices() {
-      const choices = document.querySelector('.splash-choices');
-      if (choices) {
-        choices.classList.add('show-options');
-      }
-    }
-
-    function playSplashDefaultAudio() {
-      if (splashAudioStarted) return;
+    function playMorningWelcomeAudio() {
+      if (welcomeAudioStarted) return;
       unlockAudioHardware();
-      splashAudioStarted = true;
+      welcomeAudioStarted = true;
 
       const splashGreeting = "Shubodayam Nana! Simply showing up for yourself today is already a beautiful victory.";
       const fullUrl = getAudioUrl('audio/welcome_greeting.mp3');
@@ -2005,55 +2000,60 @@
       }
 
       activeAudioObj = createAudioPlayer(fullUrl);
-      activeAudioObj.volume = 1.0;
       showAudioVisualizer('romantic', splashGreeting);
 
       activeAudioObj.onended = () => {
         hideAudioVisualizer();
-        revealSplashChoices();
       };
-      activeAudioObj.onerror = (e) => {
-        console.warn("Welcome greeting audio error, trying TTS fallback:", e);
-        speakCheerTTS(splashGreeting, revealSplashChoices);
+      activeAudioObj.onerror = () => {
+        console.warn("Welcome greeting audio error, trying TTS fallback");
+        speakCheerTTS(splashGreeting, hideAudioVisualizer);
       };
 
       const playPromise = activeAudioObj.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          // HTML5 Audio playing successfully!
+          // Audio playing successfully!
         }).catch((err) => {
-          console.warn("HTML5 autoplay blocked by browser policy, using Male TTS fallback for instant audio on open:", err);
-          speakCheerTTS(splashGreeting, revealSplashChoices);
+          console.warn("Autoplay notice, fallback male TTS:", err);
+          speakCheerTTS(splashGreeting, hideAudioVisualizer);
         });
       }
-
-      setTimeout(revealSplashChoices, 6000);
     }
 
-    // Try immediate playback
-    setTimeout(playSplashDefaultAudio, 100);
-
-    // Primary User Tap Listener — unlocks hardware and triggers audio instantly on user gesture
-    const triggerSplashAudioOnUserGesture = () => {
+    function startFlowSession() {
       unlockAudioHardware();
-      if (!splashAudioStarted) {
-        playSplashDefaultAudio();
-      }
-    };
 
-    const splashHint = document.getElementById('splashAudioHint');
-    if (splashHint) {
-      splashHint.addEventListener('click', (e) => {
+      // Transition from Step 1 (Entry Splash) to Step 2 (Morning Welcome Screen)
+      if (entrySplash) {
+        entrySplash.classList.add('fade-out');
+        setTimeout(() => {
+          entrySplash.style.display = 'none';
+        }, 500);
+      }
+
+      welcomeSplash.style.display = 'flex';
+      welcomeSplash.style.opacity = '1';
+      welcomeSplash.classList.remove('fade-out');
+
+      // Play morning welcome greeting audio instantly in Male Telugu Mohan voice!
+      setTimeout(playMorningWelcomeAudio, 150);
+    }
+
+    if (btnStartFlow) {
+      btnStartFlow.addEventListener('click', (e) => {
         e.stopPropagation();
-        triggerSplashAudioOnUserGesture();
+        startFlowSession();
       });
     }
 
-    splash.addEventListener('click', triggerSplashAudioOnUserGesture);
-    splash.addEventListener('touchstart', triggerSplashAudioOnUserGesture, { passive: true });
+    if (entrySplash) {
+      entrySplash.addEventListener('click', startFlowSession);
+      entrySplash.addEventListener('touchstart', startFlowSession, { passive: true });
+    }
 
     function dismissSplash(type) {
-      initAudio();
+      unlockAudioHardware();
       const cheers = type === 'yes' ? SPLASH_CHEERS.yes : SPLASH_CHEERS.slow;
       const idx = Math.floor(Math.random() * cheers.length);
       const msg = cheers[idx];

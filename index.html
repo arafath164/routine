@@ -41,16 +41,33 @@
   </div>
 
   <!-- ============================================================
-       WELCOME SPLASH SCREEN
+       STEP 1: MINIMALIST ENTRY SPLASH (Single Tap to Unlock Audio)
        ============================================================ -->
-  <div id="welcomeSplash" class="welcome-splash">
+  <div id="entrySplash" class="welcome-splash entry-splash">
+    <div class="splash-content entry-content">
+      <div class="splash-sun">☀️</div>
+      <h1 class="splash-greeting">Naan's Daily Flow 🌸</h1>
+      <p class="splash-question">A gentle, pressure-free daily rhythm for you ✨</p>
+      
+      <button class="btn-start-flow" id="btnStartFlow">
+        <span class="btn-spark-icon">✨</span>
+        <span>Tap to Begin</span>
+        <i data-lucide="arrow-right"></i>
+      </button>
+      <span class="entry-audio-tag">🔊 Unlocks warm male Telugu voice & gentle sound</span>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STEP 2: MORNING WELCOME SCREEN (Plays Welcome Audio Instantly)
+       ============================================================ -->
+  <div id="welcomeSplash" class="welcome-splash morning-splash" style="display: none;">
     <div class="splash-content">
       <div class="splash-sun">☀️</div>
       <h1 class="splash-greeting">Shubodayam Nana 🌸</h1>
       <p class="splash-question">Simply showing up for yourself today is already a beautiful victory ✨</p>
-      <div class="splash-audio-hint" id="splashAudioHint">🔊 Tap anywhere to play morning audio greeting</div>
 
-      <div class="splash-choices">
+      <div class="splash-choices show-options">
         <button class="splash-btn splash-btn-energized" id="splashBtnYes">
           <span class="splash-btn-emoji">🌻</span>
           <span class="splash-btn-text">Yes! Let's bloom today!</span>
