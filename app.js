@@ -875,12 +875,49 @@
   }
 
   let activeAudioObj = null;
+  let audioHardwareUnlocked = false;
+
+  function getAudioUrl(filePath) {
+    if (!filePath) return '';
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      return filePath;
+    }
+    let cleanPath = filePath.replace(/^\/+/, '');
+    let base = window.location.pathname;
+    if (base.substring(base.lastIndexOf('/')).includes('.')) {
+      base = base.substring(0, base.lastIndexOf('/') + 1);
+    }
+    if (!base.endsWith('/')) {
+      base = base + '/';
+    }
+    return window.location.origin + base + cleanPath;
+  }
+
+  function unlockAudioHardware() {
+    if (audioHardwareUnlocked) return;
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    try {
+      const buffer = audioCtx ? audioCtx.createBuffer(1, 1, 22050) : null;
+      if (buffer) {
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+      }
+      audioHardwareUnlocked = true;
+    } catch (e) {}
+  }
 
   function speakCheer(input, onEndCb) {
     if (!appState.soundEnabled) {
       if (onEndCb) onEndCb();
       return;
     }
+
+    unlockAudioHardware();
 
     let text = typeof input === 'object' ? input.text : input;
     let audioFile = typeof input === 'object' ? input.audioFile : null;
@@ -910,7 +947,9 @@
 
     if (audioFile) {
       try {
-        activeAudioObj = new Audio(audioFile);
+        const fullUrl = getAudioUrl(audioFile);
+        activeAudioObj = new Audio(fullUrl);
+        activeAudioObj.volume = 1.0;
         let triggered = false;
         const doneHandler = () => {
           if (!triggered) {
@@ -921,13 +960,12 @@
         };
         activeAudioObj.onended = doneHandler;
         activeAudioObj.onerror = () => {
-          hideAudioVisualizer();
-          if (onEndCb && !triggered) { triggered = true; onEndCb(); }
+          console.warn("Audio file load error, fallback to TTS:", fullUrl);
+          speakCheerTTS(cleaned, onEndCb);
         };
         activeAudioObj.play().then(() => {}).catch((err) => {
           console.warn("Audio play deferred or interrupted:", err);
-          hideAudioVisualizer();
-          if (onEndCb && !triggered) { triggered = true; onEndCb(); }
+          speakCheerTTS(cleaned, onEndCb);
         });
         return;
       } catch (err) {
@@ -1943,47 +1981,49 @@
 
     function playSplashDefaultAudio() {
       if (splashAudioStarted) return;
-      initAudio();
+      unlockAudioHardware();
       splashAudioStarted = true;
 
       const splashGreeting = "Shubodayam Nana! Simply showing up for yourself today is already a beautiful victory.";
+      const fullUrl = getAudioUrl('audio/welcome_greeting.mp3');
 
       if (activeAudioObj) {
         try { activeAudioObj.pause(); } catch (e) {}
       }
 
-      activeAudioObj = new Audio('audio/welcome_greeting.mp3');
+      activeAudioObj = new Audio(fullUrl);
+      activeAudioObj.volume = 1.0;
       showAudioVisualizer('romantic', splashGreeting);
 
       activeAudioObj.onended = () => {
         hideAudioVisualizer();
         revealSplashChoices();
       };
-      activeAudioObj.onerror = () => {
-        hideAudioVisualizer();
-        revealSplashChoices();
+      activeAudioObj.onerror = (e) => {
+        console.warn("Welcome greeting audio error, trying TTS fallback:", e);
+        speakCheerTTS(splashGreeting, revealSplashChoices);
       };
 
       const playPromise = activeAudioObj.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          // Playing successfully! Choices reveal when audio ends.
+          // Playing successfully!
         }).catch((err) => {
-          console.warn("Splash autoplay waiting for user interaction:", err);
+          console.warn("Splash autoplay waiting for user tap:", err);
           splashAudioStarted = false;
           hideAudioVisualizer();
         });
       }
 
-      // Safety fallback: reveal choices after 6 seconds if audio is delayed
       setTimeout(revealSplashChoices, 6000);
     }
 
     // Try immediate playback
     setTimeout(playSplashDefaultAudio, 100);
 
-    // Primary User Tap Listener — triggers audio instantly on user gesture
+    // Primary User Tap Listener — unlocks hardware and triggers audio instantly on user gesture
     const triggerSplashAudioOnUserGesture = () => {
+      unlockAudioHardware();
       if (!splashAudioStarted) {
         playSplashDefaultAudio();
       }
