@@ -884,9 +884,9 @@
     }
     let cleanPath = filePath.replace(/^\/+/, '');
 
-    // On github.io hosts, serve audio directly from raw.githubusercontent.com for guaranteed 200 OK
+    // On github.io hosts, serve audio directly from jsDelivr CDN for instant 200 OK audio streaming without Content-Disposition attachment block
     if (window.location.hostname.endsWith('github.io')) {
-      return `https://raw.githubusercontent.com/arafath164/Day/main/${cleanPath}`;
+      return `https://cdn.jsdelivr.net/gh/arafath164/Day@main/${cleanPath}`;
     }
 
     let base = window.location.pathname;
@@ -957,6 +957,7 @@
         activeAudioObj = new Audio(fullUrl);
         activeAudioObj.volume = 1.0;
         let triggered = false;
+
         const doneHandler = () => {
           if (!triggered) {
             triggered = true;
@@ -964,11 +965,18 @@
             if (onEndCb) onEndCb();
           }
         };
+
         activeAudioObj.onended = doneHandler;
+
         activeAudioObj.onerror = () => {
-          console.warn("Audio file load error, fallback to TTS:", fullUrl);
-          speakCheerTTS(cleaned, onEndCb);
+          console.warn("Primary audio URL error, trying relative fallback:", fullUrl);
+          const fallbackObj = new Audio(audioFile);
+          fallbackObj.volume = 1.0;
+          fallbackObj.onended = doneHandler;
+          fallbackObj.onerror = () => speakCheerTTS(cleaned, onEndCb);
+          fallbackObj.play().catch(() => speakCheerTTS(cleaned, onEndCb));
         };
+
         activeAudioObj.play().then(() => {}).catch((err) => {
           console.warn("Audio play deferred or interrupted:", err);
           speakCheerTTS(cleaned, onEndCb);
